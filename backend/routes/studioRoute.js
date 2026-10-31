@@ -9,7 +9,7 @@ router.get("/studios/:id", getSingleStudio);
 
 router.post("/add-listing", verifyUser, addlisting);
 router.get("/my-listings", verifyUser, getMyStudios);
-router.put("/studios/:id", verifyUser, updateStudio);
+router.put("/studios/edit/:id", verifyUser, updateStudio);
 router.delete("/studios/:id", verifyUser, deleteStudio);
 
 export default router;
