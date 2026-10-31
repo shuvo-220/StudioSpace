@@ -136,3 +136,61 @@ export const getMyBookings = async (req, res) => {
     });
   }
 };
+
+
+
+export const cancelBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid booking ID!",
+      });
+    }
+
+    const booking = await Booking.findById(id);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found!",
+      });
+    }
+
+    if (
+      booking.creatorEmail.toLowerCase() !==
+      req.user.email.toLowerCase()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to cancel this booking!",
+      });
+    }
+
+    if (booking.status !== "Pending") {
+      return res.status(400).json({
+        success: false,
+        message: "Only pending bookings can be cancelled!",
+      });
+    }
+
+    booking.status = "Cancelled";
+    await booking.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Booking cancelled successfully!",
+      data: booking,
+    });
+
+  } catch (error) {
+    console.error("Cancel booking error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error!",
+    });
+  }
+};
