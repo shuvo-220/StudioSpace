@@ -42,3 +42,22 @@ export const addlisting = async (req, res) => {
     });
   }
 };
+
+
+export const getAllStudios = async (req, res) => {
+  try {
+    const studios = await Studio.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Studios fetched successfully!",
+      total: studios.length,
+      data: studios,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
