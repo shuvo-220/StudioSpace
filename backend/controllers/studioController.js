@@ -1,4 +1,5 @@
 import Studio from "../models/studioModel.js";
+import mongoose from "mongoose";
 
 export const addlisting = async (req, res) => {
   try {
@@ -101,6 +102,118 @@ export const getMyStudios = async (req, res) => {
       message: "Your studios fetched successfully!",
       total: studios.length,
       data: studios,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateStudio = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check valid MongoDB ID
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid studio ID!",
+      });
+    }
+
+    // Find studio
+    const studio = await Studio.findById(id);
+
+    if (!studio) {
+      return res.status(404).json({
+        success: false,
+        message: "Studio not found!",
+      });
+    }
+
+    // Check ownership
+    if (studio.hostEmail !== req.user.email.toLowerCase()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to update this studio!",
+      });
+    }
+
+    // Only allow these fields to be updated
+    const allowedFields = [
+      "title",
+      "category",
+      "hourlyRate",
+      "securityDeposit",
+      "maxCapacity",
+      "location",
+      "imageUrl",
+      "amenities",
+      "overview",
+    ];
+
+    const updateData = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    const updatedStudio = await Studio.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Studio updated successfully!",
+      data: updatedStudio,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+export const deleteStudio = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid studio ID!",
+      });
+    }
+
+    const studio = await Studio.findById(id);
+
+    if (!studio) {
+      return res.status(404).json({
+        success: false,
+        message: "Studio not found!",
+      });
+    }
+
+    if (studio.hostEmail !== req.user.email.toLowerCase()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to delete this studio!",
+      });
+    }
+
+    await Studio.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Studio deleted successfully!",
     });
   } catch (error) {
     res.status(500).json({
