@@ -1,3 +1,4 @@
+
 import "dotenv/config";
 import app from "./app.js";
 import connectDB from "./db/db.js";
@@ -16,4 +17,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (process.env.NODE_ENV !== "production") {
+  startServer();
+}
+
+export default app;
