@@ -1,3 +1,4 @@
+
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { jwt } from "better-auth/plugins";
@@ -11,9 +12,9 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
 
   trustedOrigins: [
-  "http://localhost:3000",
-  "https://frontend-eta-orcin-54.vercel.app",
-],
+    "http://localhost:3000",
+    "https://frontend-eta-orcin-54.vercel.app",
+  ],
 
   emailAndPassword: {
     enabled: true,
@@ -34,6 +35,14 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60,
       strategy: "jwt",
+    },
+  },
+
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      httpOnly: true,
     },
   },
 
